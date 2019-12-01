@@ -1,13 +1,28 @@
-class FuelCounter
-  attr_reader :masses, :fuel
+require 'pry'
 
-  def initialize masses
-    @masses = masses
+class FuelCounter
+  attr_reader :fuel
+
+  def initialize modules
+    @modules = modules
     @fuel = self.count
   end
   
   def count
-    @masses.map { |mass| mass / 3 - 2 }.sum
+    @fuel = @modules.map { |module_mass| calculate_module module_mass }.sum
+  end
+
+  def calculate_module module_mass
+    total = 0
+    until module_mass < 1
+      module_mass = mass_to_fuel module_mass
+      total += module_mass if module_mass > 0
+    end
+    total
+  end
+
+  def mass_to_fuel mass
+    mass / 3 - 2
   end
 end
 
