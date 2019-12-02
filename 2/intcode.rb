@@ -1,3 +1,5 @@
+require 'pry'
+
 class Intcode
   attr_reader :program
 
@@ -11,9 +13,11 @@ class Intcode
     program.each_with_index do |code, index|
       if index % 4 == 0 && code == 99
         chunked_program << [99]
-        program.delete_at(index)
+        rest = program[index + 1..].concat ["\0"]
+        chunked_program.concat self.chunk rest
+        break
       elsif index % 4 == 0
-        chunked_program << chunk
+        chunked_program << chunk if index != 0
         chunk = []
         chunk << code
       else
@@ -33,17 +37,25 @@ class Intcode
       when 2
         opcode_two chunk
       else
-        throw "Invalid program"
+        p chunk[0]
       end
     end
   end
 
   def opcode_one chunk
-    @program[chunk[3]] = chunk[1] + chunk[2]
+    idx = twod_index chunk[3]
+    @program[idx[0]][idx[1]] = chunk[1] + chunk[2]
   end
 
   def opcode_two chunk
-    @program[chunk[3]] = chunk[1] * chunk[2]
+    idx = twod_index chunk[3]
+    @program[idx[0]][idx[1]] = chunk[1] * chunk[2]
+  end
+
+  def twod_index idx
+    x = idx / 4
+    y = idx % 4
+    [x, y]
   end
 end
 
@@ -56,4 +68,4 @@ File.open './input' do |file|
 end
 
 intcode = Intcode.new(intcode_program)
-p intcode.program
+p intcode.run
