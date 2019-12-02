@@ -23,12 +23,16 @@ class Intcode
     @program
   end
 
+  def get_addr index
+    @program[@pointer + index]
+  end
+
   def opcode_one
-    @program[@program[@pointer + 3]] = @program[@program[@pointer + 1]] + @program[@program[@pointer + 2]]
+    @program[get_addr 3] = @program[get_addr 1] + @program[get_addr 2]
   end
 
   def opcode_two
-    @program[@program[@pointer + 3]] = @program[@program[@pointer + 1]] * @program[@program[@pointer + 2]]
+    @program[get_addr 3] = @program[get_addr 1] * @program[get_addr 2]
   end
 end
 
@@ -41,5 +45,4 @@ File.open './input' do |file|
 end
 
 intcode = Intcode.new(intcode_program)
-p intcode.program
 p intcode.run
