@@ -1,8 +1,4 @@
-require 'pry'
-
 class FuelCounter
-  attr_reader :fuel
-
   def initialize modules
     @modules = modules
     @fuel = self.count
