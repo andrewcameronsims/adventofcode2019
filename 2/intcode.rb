@@ -16,7 +16,7 @@ class Intcode
       when 2
         opcode_two
       else
-        throw "Invalid program"
+        break
       end
       @pointer += 4
     end
@@ -44,5 +44,51 @@ File.open './input' do |file|
   end
 end
 
-intcode = Intcode.new(intcode_program)
-p intcode.run
+# intcode = Intcode.new(intcode_program)
+# p intcode.run
+
+# Brute force for part two
+
+class BruteForce
+  def initialize
+    @candidates = generate_candidates
+  end
+
+  def generate_candidates
+    candidates = []
+    base = load_base_program
+    (0..99).each do |int|
+      (0..99).each do |jnt|
+        base = load_base_program
+        base[1] = int
+        base[2] = jnt
+        candidates << base
+      end
+    end
+    candidates
+  end
+
+  def crack
+    @candidates.each do |candidate|
+      intcode = Intcode.new(candidate)
+      result = intcode.run
+      if result[0] == 19690720
+        puts "Found a winner"
+        puts 100 * result[1] + result[2]
+      end
+    end
+  end
+
+  def load_base_program
+    program = []
+    File.open './input' do |file|
+      file.each do |line|
+        program = line.chomp.split(',').map { |str| str.to_i }
+      end
+    end
+    program
+  end
+end
+
+bf = BruteForce.new
+bf.crack
