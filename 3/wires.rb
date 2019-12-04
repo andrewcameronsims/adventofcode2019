@@ -1,8 +1,6 @@
 require 'pry'
 
 class Wires
-  attr_reader :wires
-
   def initialize 
     @wires = load_wires
   end
