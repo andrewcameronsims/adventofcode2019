@@ -90,5 +90,5 @@ class BruteForce
   end
 end
 
-bf = BruteForce.new
-bf.crack
+# bf = BruteForce.new
+# bf.crack

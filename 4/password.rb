@@ -1,3 +1,5 @@
+require 'pry'
+
 class PasswordCracker
   def initialize
     @range = 147981..691423
@@ -16,6 +18,7 @@ class PasswordCracker
     return false unless self.never_decreases candidate
     return false unless candidate.length == 6
     return false unless self.two_adjacent_same candidate
+    return false if two_plus_adjacent candidate 
     true
   end
 
@@ -24,9 +27,25 @@ class PasswordCracker
     candidate.each_with_index do |digit, i|
       next if i == 0
       previous = candidate[i - 1]
-      adjacent_count += 1 if digit == previous
+      if digit == previous
+        adjacent_count += 1
+      end
     end
     adjacent_count >= 1
+  end
+
+  def two_plus_adjacent candidate
+    # binding.pry 
+    adjacent_count = 0
+    candidate.each_with_index do |digit, i|
+      next if i == 0
+      if digit == candidate[i - 1]
+        adjacent_count += 1
+        return true if adjacent_count > 1
+      else
+        adjacent_count = 0
+      end
+    end
   end
 
   def never_decreases candidate
