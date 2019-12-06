@@ -1,3 +1,5 @@
+require "pry"
+
 class Intcode
   def initialize filename
     @program = load_program filename
@@ -7,20 +9,30 @@ class Intcode
   def run input
     until @program[@pointer] == 99
       modes = get_modes @program[@pointer]
+      params = get_params modes
       case @program[@pointer].digits[0] # last digit of opcode
       when 1
-        opcode_one modes
+        add params
       when 2
-        opcode_two modes
+        mult params
       when 3
-        opcode_three input
+        read input
       when 4
-        opcode_four modes
+        write modes
+      when 5
+        tjmp params
+      when 6
+        fjmp params
+      when 7
+        less params
+      when 8
+        eqls params
       else
         puts "Invalid opcode #{@program[@pointer]}, halting"
         break
       end
       advance_pointer
+      # binding.pry
     end
     @program
   end
@@ -29,26 +41,25 @@ class Intcode
     case @program[@pointer].digits[0]
     when 3, 4
       @pointer += 2
-    else
+    when 1, 2, 7, 8
       @pointer += 4
+    else
     end
   end
 
-  def opcode_one modes
-    params = get_params modes
+  def add params
     @program[get_addr 3] = params[0] + params[1]
   end
 
-  def opcode_two modes
-    params = get_params modes
+  def mult params
     @program[get_addr 3] = params[0] * params[1]
   end
 
-  def opcode_three input
+  def read input
     @program[get_addr 1] = input
   end
 
-  def opcode_four modes
+  def write modes
     case modes[0]
     when 0
       puts @program[get_addr 1]
@@ -57,6 +68,30 @@ class Intcode
     else
       "Invalid parameter mode, halting"
     end
+  end
+
+  def tjmp params
+    if params[0] != 0
+      @pointer = params[1]
+    else
+      @pointer += 3
+    end
+  end
+
+  def fjmp params
+    if params[0] == 0
+      @pointer = params[1]
+    else
+      @pointer += 3
+    end
+  end
+
+  def less params
+    @program[get_addr 3] = params[0] < params[1] ? 1 : 0
+  end
+
+  def eqls params
+    @program[get_addr 3] = params[0] == params[1] ? 1 : 0
   end
 
   def get_addr index
@@ -92,4 +127,4 @@ class Intcode
 end
 
 intcode_computer = Intcode.new './input'
-intcode_computer.run 1
+intcode_computer.run 5
