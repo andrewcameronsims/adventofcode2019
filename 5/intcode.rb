@@ -6,7 +6,7 @@ class Intcode
     @pointer = 0
   end
 
-  def run
+  def run input
     until @program[@pointer] == 99
       case @program[@pointer]
       when 1
@@ -14,7 +14,7 @@ class Intcode
       when 2
         opcode_two
       when 3
-        opcode_three
+        opcode_three input
       when 4
         opcode_four
       else
@@ -47,11 +47,12 @@ class Intcode
     @program[get_addr 3] = @program[get_addr 1] * @program[get_addr 2]
   end
 
-  def opcode_three
-    input = @program[get_addr 1]
+  def opcode_three 
+    @program[get_addr 1] = input
   end
 
   def opcode_four
+    puts @program[get_addr 1]
   end
 
   def mode_zero
