@@ -48,11 +48,11 @@ class Intcode
   end
 
   def add params
-    @program[get_addr 3] = params[0] + params[1]
+    @program[params[2]] = params[0] + params[1]
   end
 
   def mult params
-    @program[get_addr 3] = params[0] * params[1]
+    @program[params[2]] = params[0] * params[1]
   end
 
   def read input
@@ -87,11 +87,11 @@ class Intcode
   end
 
   def less params
-    @program[get_addr 3] = params[0] < params[1] ? 1 : 0
+    @program[params[2]] = params[0] < params[1] ? 1 : 0
   end
 
   def eqls params
-    @program[get_addr 3] = params[0] == params[1] ? 1 : 0
+    @program[params[2]] = params[0] == params[1] ? 1 : 0
   end
 
   def get_addr index
@@ -101,7 +101,8 @@ class Intcode
   def get_params modes
     first = modes[0] == 0 ? @program[get_addr 1] : @program[@pointer + 1]
     second = modes[1] == 0 ? @program[get_addr 2] : @program[@pointer + 2]
-    return [first, second]
+    third = modes[2] == 0 ? @program[get_addr 3] : @program[@pointer + 3]
+    return [first, second, third]
   end
 
   def get_modes opcode
@@ -119,7 +120,7 @@ class Intcode
     program = []
     File.open filename do |file|
       file.each do |line|
-        program = line.chomp.split(',').map { |str| str.to_i }
+        program = line.chomp.split(',').map(&:to_i)
       end
     end
     program
@@ -127,4 +128,4 @@ class Intcode
 end
 
 intcode_computer = Intcode.new './input'
-intcode_computer.run 5
+intcode_computer.run 1
