@@ -13,12 +13,26 @@ class Intcode
         opcode_one
       when 2
         opcode_two
+      when 3
+        opcode_three
+      when 4
+        opcode_four
       else
+        puts "Invalid intcode, halting"
         break
       end
-      @pointer += 4
+      advance_pointer
     end
     @program
+  end
+
+  def advance_pointer
+    case @program[@pointer]
+    when 3, 4
+      @pointer += 2
+    else
+      @pointer += 4
+    end
   end
 
   def get_addr index
@@ -33,7 +47,20 @@ class Intcode
     @program[get_addr 3] = @program[get_addr 1] * @program[get_addr 2]
   end
 
-  def load_base_program
+  def opcode_three
+    input = @program[get_addr 1]
+  end
+
+  def opcode_four
+  end
+
+  def mode_zero
+  end
+
+  def mode_one
+  end
+
+  def load_program
     program = []
     File.open './input' do |file|
       file.each do |line|
