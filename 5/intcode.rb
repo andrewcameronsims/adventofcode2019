@@ -1,24 +1,23 @@
 class Intcode
-  attr_reader :program
-
-  def initialize program
-    @program = load_program
+  def initialize filename
+    @program = load_program filename
     @pointer = 0
   end
 
   def run input
     until @program[@pointer] == 99
-      case @program[@pointer]
+      modes = get_modes @program[@pointer]
+      case @program[@pointer].digits[0] # last digit of opcode
       when 1
-        opcode_one
+        opcode_one modes
       when 2
-        opcode_two
+        opcode_two modes
       when 3
         opcode_three input
       when 4
-        opcode_four
+        opcode_four modes
       else
-        puts "Invalid intcode, halting"
+        puts "Invalid opcode, halting"
         break
       end
       advance_pointer
@@ -35,35 +34,48 @@ class Intcode
     end
   end
 
-  def get_addr index
-    @program[@pointer + index]
+  def opcode_one modes
+    params = get_params modes
+    @program[get_addr 3] = params[0] + params[1]
   end
 
-  def opcode_one
-    @program[get_addr 3] = @program[get_addr 1] + @program[get_addr 2]
-  end
-
-  def opcode_two
-    @program[get_addr 3] = @program[get_addr 1] * @program[get_addr 2]
+  def opcode_two modes
+    params = get_params modes
+    @program[get_addr 3] = params[0] * params[1]
   end
 
   def opcode_three 
     @program[get_addr 1] = input
   end
 
-  def opcode_four
-    puts @program[get_addr 1]
+  def opcode_four modes
+    case modes[0]
+    when 0
+      puts @program[get_addr 1]
+    when 1
+      puts @program[@pointer + 1]
+    else
+      "Invalid parameter mode, halting"
+    end
   end
 
-  def mode_zero
+  def get_addr index
+    @program[@pointer + index]
   end
 
-  def mode_one
+  def get_params modes
+    first = modes[0] == 0 ? @program[get_addr 1] : @program[@pointer + 1]
+    second = modes[1] == 0 ? @program[get_addr 2] : @program[@pointer + 2]
+    return [first, second]
   end
 
-  def load_program
+  def get_modes opcode
+    opcode.digits[2..]
+  end
+
+  def load_program filename
     program = []
-    File.open './input' do |file|
+    File.open filename do |file|
       file.each do |line|
         program = line.chomp.split(',').map { |str| str.to_i }
       end
