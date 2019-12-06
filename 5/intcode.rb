@@ -17,7 +17,7 @@ class Intcode
       when 4
         opcode_four modes
       else
-        puts "Invalid opcode, halting"
+        puts "Invalid opcode #{@program[@pointer]}, halting"
         break
       end
       advance_pointer
@@ -26,7 +26,7 @@ class Intcode
   end
 
   def advance_pointer
-    case @program[@pointer]
+    case @program[@pointer].digits[0]
     when 3, 4
       @pointer += 2
     else
@@ -44,7 +44,7 @@ class Intcode
     @program[get_addr 3] = params[0] * params[1]
   end
 
-  def opcode_three 
+  def opcode_three input
     @program[get_addr 1] = input
   end
 
@@ -70,7 +70,14 @@ class Intcode
   end
 
   def get_modes opcode
-    opcode.digits[2..]
+    modes = opcode.digits[2..]
+    if not modes
+      [0, 0]
+    elsif modes.length == 1
+      modes << 0
+    else
+      modes
+    end
   end
 
   def load_program filename
@@ -83,3 +90,6 @@ class Intcode
     program
   end
 end
+
+intcode_computer = Intcode.new './input'
+intcode_computer.run 1
