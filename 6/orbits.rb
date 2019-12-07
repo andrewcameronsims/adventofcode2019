@@ -26,6 +26,28 @@ class OrbitMap
     indirects
   end
 
+  def get_distance from, to
+    # trace paths from both locations to the COM
+    from_path = trace_path from
+    to_path = trace_path to
+    # find the first location that exists in both paths
+    intersections = from_path & to_path
+    intersection = intersections.first
+    # add the indices
+    from_index = from_path.find_index(intersection)
+    to_index = to_path.find_index(intersection)
+    from_index + to_index
+  end
+
+  def trace_path location
+    path = []
+    until location == "COM"
+      path << @orbits[location]
+      location = @orbits[location]
+    end
+    path
+  end
+
   def load_data filename
     data = []
     File.open filename do |file|
@@ -39,3 +61,4 @@ end
 
 om = OrbitMap.new './input'
 p om.count_orbits
+p om.get_distance "YOU", "SAN"
