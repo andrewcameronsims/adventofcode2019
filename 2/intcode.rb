@@ -1,5 +1,3 @@
-require 'pry'
-
 class Intcode
   attr_reader :program
 
@@ -44,8 +42,7 @@ File.open './input' do |file|
   end
 end
 
-# intcode = Intcode.new(intcode_program)
-# p intcode.run
+p intcode.run
 
 # Brute force for part two
 
@@ -90,5 +87,5 @@ class BruteForce
   end
 end
 
-# bf = BruteForce.new
-# bf.crack
+bf = BruteForce.new
+bf.crack

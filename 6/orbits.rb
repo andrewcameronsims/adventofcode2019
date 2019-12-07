@@ -1,5 +1,3 @@
-require 'pry'
-
 class OrbitMap
   attr_reader :orbits
 
@@ -21,7 +19,6 @@ class OrbitMap
     indirects = 0
     @orbits.each do |oer, oed|
       while @orbits[oer]
-        # binding.pry
         oer = @orbits[oer]
         indirects += 1
       end

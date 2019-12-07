@@ -1,6 +1,3 @@
-require 'pry'
-require 'set'
-
 class Wires
   def initialize filename
     @wires = load_wires filename
