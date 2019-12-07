@@ -1,4 +1,5 @@
 require 'pry'
+require 'set'
 
 class Wires
   def initialize filename
@@ -10,7 +11,8 @@ class Wires
   def get_paths wires
     paths = []
     wires.each do |wire|
-      paths << trace_path wire
+      path = trace_path wire
+      paths << path
     end
     paths
   end
@@ -24,19 +26,19 @@ class Wires
       distance.times do
         case direction
         when "U"
-          y++
+          y += 1
         when "R"
-          x++
+          x += 1
         when "D"
-          y--
+          y -= 1
         when "L"
-          x--
+          x -= 1
         else
           puts "Bad instruction"
           abort
         end
+        path.add [x, y]
       end
-      path.add [x, y]
     end
     path
   end
@@ -47,7 +49,7 @@ class Wires
   end
 
   def closest_intersection
-    intersections.map do |is|
+    @intersections.map do |is|
       is[0].abs + is[1].abs
     end.min
   end
