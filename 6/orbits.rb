@@ -5,21 +5,23 @@ class OrbitMap
 
   def initialize filename
     @data = load_data filename
-    @orbits = {}
-    direct_orbits @data
+    @orbits = direct_orbits @data
   end
 
   def direct_orbits data
+    orbits = {}
     data.each do |orbit|
       oed, oer = orbit.split(")")
-      @orbits[oer] = [oed]
+      orbits[oer] = oed
     end
+    orbits
   end
 
   def count_orbits
     indirects = 0
     @orbits.each do |oer, oed|
       while @orbits[oer]
+        # binding.pry
         oer = @orbits[oer]
         indirects += 1
       end
