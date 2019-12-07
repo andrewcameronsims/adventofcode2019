@@ -1,92 +1,67 @@
 require 'pry'
 
 class Wires
-  def initialize 
-    @wires = load_wires
+  def initialize filename
+    @wires = load_wires filename
+    @paths = get_paths @wires
+    @intersections = find_intersections @paths
   end
 
-  def nearest_junction
-    locations = get_locations
-    junctions = get_junctions locations
-    find_closest junctions
+  def get_paths wires
+    paths = []
+    wires.each do |wire|
+      paths << trace_path wire
+    end
+    paths
   end
 
-  private
-    def get_locations
-      locations = []
-      @wires.each do |wire|
-        wire_locs = []
-        wire.each_with_index do |mv, i|
-          previous = i == 0 ? [0, 0] : wire_locs[i - 1]
-          direction = mv[0]
-          distance = mv[1..].to_i
-          case direction
-          when "U"
-            wire_locs << [previous[0], previous[1] + distance]
-          when "D"
-            wire_locs << [previous[0], previous[1] - distance]
-          when "L"
-            wire_locs << [previous[0] - distance, previous[1]]
-          when "R"
-            wire_locs << [previous[0] + distance, previous[1]]
-          else
-            throw StandardError "unknown direction"
-          end
+  def trace_path wire
+    x, y = 0, 0
+    path = Set.new
+    wire.each do |instruction|
+      direction = instruction[0]
+      distance = instruction[1..].to_i
+      distance.times do
+        case direction
+        when "U"
+          y++
+        when "R"
+          x++
+        when "D"
+          y--
+        when "L"
+          x--
+        else
+          puts "Bad instruction"
+          abort
         end
-        wire_locs.unshift [0, 0]
-        locations << wire_locs
       end
-      locations
+      path.add [x, y]
     end
+    path
+  end
 
-    def get_junctions locations
-      junctions = []
-      wire_one = locations[0]
-      wire_two = locations[1]
-      wire_one.each_with_index do |loc, i|
-        next if i == 0
-        vec_one = [loc, wire_one[i - 1]]
-        wire_two.each_with_index do |joc, j|
-          next if i == 0
-          vec_two = [joc, wire_two[j - 1]]
-          junction = get_intersection vec_one, vec_two
-          junctions << junction if junction
-        end
-      end
-      junctions
-    end
+  def find_intersections paths
+    path_one, path_two = paths
+    path_one & path_two
+  end
 
-    def get_intersection vec_one, vec_two
-      if vec_one[0][0] != vec_one[1][0] && vec_two[0][1] != vec_two[1][1]
-        if (vec_one[0][0]..vec_one[1][0]).include? vec_two[0][0]
-          return [vec_two[0][0], vec_one[0][1]]
-        end
-      end
-      if vec_one[0][1] != vec_one[1][1] && vec_two[0][0] != vec_two[1][0]
-        if (vec_one[0][1]..vec_one[1][1]).include? vec_two[0][1]
-          return [vec_one[0][0], vec_two[0][1]]
-        end
-      end
-      nil
-    end
+  def closest_intersection
+    intersections.map do |is|
+      is[0].abs + is[1].abs
+    end.min
+  end
 
-    def find_closest junctions
-      distances = junctions.map do |junction|
-        junction[0].abs + junction[1].abs
+  def load_wires filename
+    wires = []
+    File.open filename do |file|
+      file.each do |line|
+        wires << line.chomp
       end
-      distances.min
     end
-
-    def load_wires
-      wires = []
-      File.open './input' do |file|
-        file.each do |line|
-          wires << line.chomp
-        end
-      end
-      wires.map { |wire| wire.split(',') }
-    end
+    wires.map { |wire| wire.split(',') }
+  end
 end
 
-w = Wires.new
-p w.nearest_junction
+w = Wires.new './input'
+p w.closest_intersection
