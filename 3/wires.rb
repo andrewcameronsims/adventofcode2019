@@ -19,7 +19,7 @@ class Wires
 
   def trace_path wire
     x, y = 0, 0
-    path = Set.new
+    path = []
     wire.each do |instruction|
       direction = instruction[0]
       distance = instruction[1..].to_i
@@ -37,7 +37,7 @@ class Wires
           puts "Bad instruction"
           abort
         end
-        path.add [x, y]
+        path << [x, y]
       end
     end
     path
@@ -54,6 +54,21 @@ class Wires
     end.min
   end
 
+  def fewest_steps
+    @intersections.map do |is|
+      count_steps is
+    end.min
+  end
+
+  def count_steps coords
+    indices = []
+    @paths.each do |path|
+      index = path.find_index coords
+      indices << index + 1
+    end
+    indices.sum
+  end
+
   def load_wires filename
     wires = []
     File.open filename do |file|
@@ -67,3 +82,4 @@ end
 
 w = Wires.new './input'
 p w.closest_intersection
+p w.fewest_steps
